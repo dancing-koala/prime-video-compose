@@ -40,15 +40,14 @@ interface AppScreen {
             }
         }
 
+        @OptIn(ExperimentalMaterialApi::class)
         @Composable
         fun Content() {
             Router<AppRouting>("app routing", AppRouting.MyStuff) { backstack ->
                 val currentRoute = backstack.last()
 
                 Scaffold(
-                    bottomBar = {
-                        BottomBar(currentRoute, onItemClick = { backstack.push(it) })
-                    },
+                    bottomBar = { BottomBar(currentRoute, onItemClick = { backstack.push(it) }) },
                 ) { innerPadding ->
                     Box(
                         modifier = Modifier
