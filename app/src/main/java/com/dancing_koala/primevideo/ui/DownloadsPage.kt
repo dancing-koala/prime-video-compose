@@ -1,8 +1,7 @@
 package com.dancing_koala.primevideo.ui
 
-import androidx.annotation.DrawableRes
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,10 +9,8 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.runtime.*
@@ -30,112 +27,84 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.dancing_koala.primevideo.R
-import com.dancing_koala.primevideo.ui.components.ItemMode
-import com.dancing_koala.primevideo.ui.components.SelectableRemovableItem
-import com.dancing_koala.primevideo.ui.components.SlideInSlideOutAnimatedVisibility
-import com.dancing_koala.primevideo.ui.theme.*
+import com.dancing_koala.primevideo.DownloadItem
+import com.dancing_koala.primevideo.DownloadItemType
+import com.dancing_koala.primevideo.downloadItems
+import com.dancing_koala.primevideo.downloadsMetadata
+import com.dancing_koala.primevideo.ui.components.*
+import com.dancing_koala.primevideo.ui.theme.Dimensions
+import com.dancing_koala.primevideo.ui.theme.PrimeBlue
+import com.dancing_koala.primevideo.ui.theme.PrimeGray
+import com.dancing_koala.primevideo.ui.theme.PrimeWhite50
 
 interface DownloadsPage {
     companion object {
 
-        private val downloadItems = listOf(
-            DownloadItem(
-                name = "Parks And Recreation",
-                image = R.drawable.parks_recs_cover,
-                size = "983 MB",
-                type = DownloadItemType.Group(10)
-            ),
-            DownloadItem(
-                name = "Godzilla VS Kong",
-                image = R.drawable.kong_cover_thumb,
-                size = "576 MB",
-                type = DownloadItemType.Playable("119 min", 0.4f)
-            ),
-            DownloadItem(
-                name = "Game of Thrones",
-                image = R.drawable.got_cover_thumb,
-                size = "1.5 GB",
-                type = DownloadItemType.Group(12)
-            ),
-            DownloadItem(
-                name = "Pulp Fiction",
-                image = R.drawable.pulp_fiction_cover_thumb,
-                size = "876 MB",
-                type = DownloadItemType.Playable("124 min", 0.75f)
-            ),
-        )
+        private val itemHeight = 96.dp
 
-        private val downloadsMetadata = listOf("12 videos", "•", "5h 33min", "•", "1.5 GB")
-
-        @OptIn(ExperimentalMaterialApi::class)
         @Composable
         fun DownloadItemLayout(
             item: DownloadItem,
             itemMode: ItemMode,
             onItemModeChange: (ItemMode) -> Boolean,
-            isChecked: Boolean,
-            onCheckedChange: (Boolean) -> Unit,
+            isSelected: Boolean,
+            onSelectionChange: (Boolean) -> Unit,
             onLongPress: () -> Unit,
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(96.dp)
-                    .pointerInput(Unit) { detectTapGestures(onLongPress = { onLongPress() }) }
+                    .height(itemHeight)
                     .background(PrimeGray)
             ) {
                 SelectableRemovableItem(
                     itemMode = itemMode,
                     onItemModeChange = onItemModeChange,
-                    isChecked = isChecked,
-                    onCheckedChange = onCheckedChange,
-                    onRemoveClick = {}
+                    isSelected = isSelected,
+                    onSelectionChange = onSelectionChange,
+                    onRemoveClick = {},
                 ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight()
-                            .background(PrimeGray)
-                    ) {
+                    val modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                        .background(PrimeGray)
+                        .pointerInput(key1 = itemMode, key2 = isSelected) {
+                            detectTapGestures(
+                                onLongPress = { onLongPress() },
+                                onTap = {
+                                    when (itemMode) {
+                                        ItemMode.Idle       -> Unit
+                                        ItemMode.Selectable -> onSelectionChange(!isSelected)
+                                        ItemMode.Removable  -> onItemModeChange(ItemMode.Idle)
+                                    }
+                                }
+                            )
+                        }.let {
+                            if (isSelected) it.alpha(.5f) else it
+                        }
+
+                    Row(modifier = modifier) {
                         Box(
                             contentAlignment = Alignment.BottomStart,
-                            modifier = Modifier.weight(0.4f, true)
+                            modifier = Modifier
+                                .weight(0.4f, true)
+                                .fillMaxHeight()
                         ) {
                             Image(
                                 painter = painterResource(id = item.image),
                                 contentDescription = "",
-                                contentScale = ContentScale.FillWidth,
+                                contentScale = ContentScale.Crop,
                             )
 
                             if (item.type is DownloadItemType.Playable) {
-                                Surface(
-                                    color = PrimeBlack50,
-                                    shape = CircleShape,
-                                    border = BorderStroke(1.dp, Color.White),
-                                    modifier = Modifier.padding(16.dp),
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Filled.PlayArrow,
-                                        contentDescription = "",
-                                        modifier = Modifier.padding(4.dp)
-                                    )
-                                }
+                                PlayIcon(Modifier.padding(16.dp))
 
                                 if (item.type.progress > 0f) {
-                                    Divider(
-                                        color = Color.White,
-                                        thickness = 4.dp,
-                                        modifier = Modifier.alpha(.5f),
-                                    )
-                                    Divider(
-                                        color = PrimeBlue,
-                                        thickness = 4.dp,
-                                        modifier = Modifier.fillMaxWidth(item.type.progress)
-                                    )
+                                    ProgressBar(progress = item.type.progress)
                                 }
                             }
                         }
+
                         Box(
                             contentAlignment = Alignment.BottomEnd,
                             modifier = Modifier
@@ -151,7 +120,7 @@ interface DownloadsPage {
                                     overflow = TextOverflow.Ellipsis
                                 )
                                 val detail = when (item.type) {
-                                    is DownloadItemType.Group -> "${item.type.itemCount} episodes"
+                                    is DownloadItemType.Group    -> "${item.type.itemCount} episodes"
                                     is DownloadItemType.Playable -> item.type.duration
                                 }
                                 Text(
@@ -307,20 +276,13 @@ interface DownloadsPage {
         @Composable
         fun Content() {
             Column(modifier = Modifier.fillMaxWidth()) {
-                var editingModeEnabled by remember {
-                    mutableStateOf(false)
-                }
-                var selectAll by remember {
-                    mutableStateOf(false)
-                }
+                var editingModeEnabled by remember { mutableStateOf(false) }
 
-                var checkedItems by remember {
-                    mutableStateOf(downloadItems.map { false })
-                }
+                var selectAll by remember { mutableStateOf(false) }
 
-                var itemModes by remember {
-                    mutableStateOf(downloadItems.map { ItemMode.Idle })
-                }
+                var checkedItems by remember { mutableStateOf(downloadItems.map { false }) }
+
+                var itemModes by remember { mutableStateOf(downloadItems.map { ItemMode.Idle }) }
 
                 Toolbar(
                     editingModeEnabled = editingModeEnabled,
@@ -349,7 +311,9 @@ interface DownloadsPage {
 
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
                 ) {
                     itemsIndexed(downloadItems) { itemIndex, item ->
                         DownloadItemLayout(
@@ -365,8 +329,8 @@ interface DownloadsPage {
                                 }
                                 true
                             },
-                            isChecked = checkedItems[itemIndex],
-                            onCheckedChange = { isChecked ->
+                            isSelected = checkedItems[itemIndex],
+                            onSelectionChange = { isChecked ->
                                 checkedItems = checkedItems.toMutableList().apply {
                                     set(itemIndex, isChecked)
                                 }
@@ -387,19 +351,20 @@ interface DownloadsPage {
 
                     item { Footer() }
                 }
+
+                AnimatedVisibility(visible = selectAll) {
+                    TextButton(
+                        onClick = { /*TODO*/ },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .background(Color.Red)
+                    ) {
+                        Text(text = "Delete (33)", color = Color.White)
+                    }
+
+                }
             }
         }
     }
-
-    sealed class DownloadItemType {
-        class Group(val itemCount: Int) : DownloadItemType()
-        class Playable(val duration: String, val progress: Float) : DownloadItemType()
-    }
-
-    data class DownloadItem(
-        val name: String,
-        @DrawableRes val image: Int,
-        val size: String,
-        val type: DownloadItemType
-    )
 }

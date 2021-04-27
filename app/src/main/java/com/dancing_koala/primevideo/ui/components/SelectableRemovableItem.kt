@@ -9,14 +9,16 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.launch
 
 private enum class Slot {
     Checkbox, Content, RemoveButton
@@ -43,14 +45,19 @@ private class SwipeStateHandler(var lastItemMode: ItemMode) {
     }
 }
 
+private val removeButtonWidth = 72.dp
+private val checkboxWidth = 40.dp
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun SelectableRemovableItem(
     itemMode: ItemMode,
     onItemModeChange: (ItemMode) -> Boolean,
-    isChecked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
+    isSelected: Boolean,
+    onSelectionChange: (Boolean) -> Unit,
     onRemoveClick: () -> Unit,
+    checkboxBackgroundColor: Color = Color.Transparent,
+    removeButtonColor: Color = Color.Red,
     content: @Composable () -> Unit
 ) {
     val itemModeMutator = remember { SwipeStateHandler(itemMode) }.apply {
@@ -65,27 +72,19 @@ fun SelectableRemovableItem(
         }
     )
 
-    val coroutineScope = rememberCoroutineScope()
-
-    DisposableEffect(key1 = itemMode) {
-        val job = coroutineScope.launch {
-            if (itemMode == ItemMode.Removable && swipeableState.currentValue == Swipe.Close) {
-                swipeableState.animateTo(Swipe.Open)
-            } else if (itemMode != ItemMode.Removable && swipeableState.currentValue == Swipe.Open) {
-                swipeableState.animateTo(Swipe.Close)
-            }
-        }
-
-        object : DisposableEffectResult {
-            override fun dispose() = job.cancel()
+    LaunchedEffect(key1 = itemMode) {
+        if (itemMode == ItemMode.Removable && swipeableState.currentValue == Swipe.Close) {
+            swipeableState.animateTo(Swipe.Open)
+        } else if (itemMode != ItemMode.Removable && swipeableState.currentValue == Swipe.Open) {
+            swipeableState.animateTo(Swipe.Close)
         }
     }
 
-    val checkboxOffset by animateDpAsState(targetValue = if (itemMode == ItemMode.Selectable) 40.dp else 0.dp)
+    val checkboxOffset by animateDpAsState(targetValue = if (itemMode == ItemMode.Selectable) checkboxWidth else 0.dp)
     val checkboxOffsetPx = with(LocalDensity.current) {
         remember(checkboxOffset) { checkboxOffset.roundToPx() }
     }
-    val removableDistancePx = with(LocalDensity.current) { 72.dp.toPx() }
+    val removableDistancePx = with(LocalDensity.current) { removeButtonWidth.toPx() }
     val anchors = mapOf(
         -removableDistancePx to Swipe.Open,
         0f to Swipe.Close,
@@ -93,11 +92,11 @@ fun SelectableRemovableItem(
 
     val removeButton = @Composable {
         IconButton(
-            onClick = {},
+            onClick = onRemoveClick,
             modifier = Modifier
                 .fillMaxHeight()
-                .width(72.dp)
-                .background(Color.Red)
+                .width(removeButtonWidth)
+                .background(removeButtonColor)
         ) {
             Icon(imageVector = Icons.Outlined.Delete, contentDescription = "")
         }
@@ -108,10 +107,10 @@ fun SelectableRemovableItem(
             contentAlignment = Alignment.Center,
             modifier = Modifier
                 .fillMaxHeight()
-                .width(40.dp)
-                .background(MaterialTheme.colors.background)
+                .width(checkboxWidth)
+                .background(checkboxBackgroundColor)
         ) {
-            Checkbox(checked = isChecked, onCheckedChange = onCheckedChange)
+            Checkbox(checked = isSelected, onCheckedChange = onSelectionChange)
         }
     }
 
