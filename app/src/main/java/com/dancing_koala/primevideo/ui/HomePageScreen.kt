@@ -17,15 +17,15 @@ import com.dancing_koala.primevideo.ui.components.MediaCarousel
 import com.dancing_koala.primevideo.ui.components.MediaShelf
 import com.dancing_koala.primevideo.ui.components.Notice
 import com.dancing_koala.primevideo.ui.components.Shelf
+import com.dancing_koala.primevideo.ui.theme.Dimensions
 import com.dancing_koala.primevideo.ui.theme.PrimeBlack
 import com.dancing_koala.primevideo.utils.makeListFullOf
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
-interface HomePage {
+interface HomePageScreen {
     companion object {
 
         private val shelves = listOf(
@@ -71,10 +71,8 @@ interface HomePage {
 
             LaunchedEffect(key1 = isRefreshing) {
                 if (isRefreshing) {
-                    launch {
-                        delay(1500)
-                        isRefreshing = false
-                    }
+                    delay(1500)
+                    isRefreshing = false
                 }
             }
 
@@ -98,7 +96,7 @@ interface HomePage {
                         .fillMaxSize()
                         .nestedScroll(nestedScrollConnection),
                     state = lazyColumnState,
-                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(Dimensions.basePadding),
                     contentPadding = PaddingValues(bottom = 16.dp),
                 ) {
                     item {

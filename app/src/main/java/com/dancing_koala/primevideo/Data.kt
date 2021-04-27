@@ -1,17 +1,37 @@
 package com.dancing_koala.primevideo
 
-import androidx.annotation.DrawableRes
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.*
+import com.dancing_koala.primevideo.ui.AppScreen
+import com.dancing_koala.primevideo.ui.HomeScreen
+import com.dancing_koala.primevideo.ui.MyStuffScreen
 
-sealed class DownloadItemType {
-    class Group(val itemCount: Int) : DownloadItemType()
-    class Playable(val duration: String, val progress: Float) : DownloadItemType()
-}
+val homeTabModels: List<TabModel<HomeScreen.HomeRouting>> = listOf(
+    TabModel("Home", HomeScreen.HomeRouting.HomePage),
+    TabModel("TV Shows", HomeScreen.HomeRouting.TvShowsPage),
+    TabModel("Movies", HomeScreen.HomeRouting.MoviesPage),
+    TabModel("Kids", HomeScreen.HomeRouting.KidsPage),
+    TabModel("Originals", HomeScreen.HomeRouting.OriginalsPage),
+)
 
-data class DownloadItem(
-    val name: String,
-    @DrawableRes val image: Int,
-    val size: String,
-    val type: DownloadItemType
+val bottomNavigationItemModels = listOf(
+    BottomNavigationItemModel("Home", Icons.Outlined.Home, AppScreen.AppRouting.Home),
+    BottomNavigationItemModel("Store", Icons.Outlined.ShoppingCart, AppScreen.AppRouting.Store),
+    BottomNavigationItemModel("Channels", Icons.Outlined.List, AppScreen.AppRouting.Channels),
+    BottomNavigationItemModel("Find", Icons.Outlined.Search, AppScreen.AppRouting.Find),
+    BottomNavigationItemModel("My Stuff", Icons.Outlined.AccountCircle, AppScreen.AppRouting.MyStuff),
+)
+
+val myStuffTabModels: List<TabModel<MyStuffScreen.MyStuffRouting>> = listOf(
+    TabModel("Downloads", MyStuffScreen.MyStuffRouting.Downloads),
+    TabModel("Watchlist", MyStuffScreen.MyStuffRouting.Watchlist),
+    TabModel("Purchases", MyStuffScreen.MyStuffRouting.Purchases),
+)
+
+val dropdownMenuItemModels = listOf(
+    DropdownMenuItemModel("Create profile", Icons.Outlined.Add),
+    DropdownMenuItemModel("Manage profiles", Icons.Outlined.Edit),
+    DropdownMenuItemModel("Learn more about profiles", Icons.Outlined.Info),
 )
 
 val downloadItems = listOf(

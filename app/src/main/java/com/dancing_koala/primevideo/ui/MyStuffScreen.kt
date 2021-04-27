@@ -10,7 +10,8 @@ import androidx.compose.material.*
 import androidx.compose.material.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +21,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.dancing_koala.primevideo.TabModel
+import com.dancing_koala.primevideo.dropdownMenuItemModels
+import com.dancing_koala.primevideo.myStuffTabModels
 import com.dancing_koala.primevideo.ui.components.GradientsBackgroundCanvas
 import com.dancing_koala.primevideo.ui.theme.Dimensions
 import com.dancing_koala.primevideo.ui.theme.PrimeWhite50
@@ -28,18 +32,6 @@ import com.github.zsoltk.compose.router.Router
 
 interface MyStuffScreen {
     companion object {
-        private val tabModels = listOf(
-            TabModel("Downloads", MyStuffRouting.Downloads),
-            TabModel("Watchlist", MyStuffRouting.Watchlist),
-            TabModel("Purchases", MyStuffRouting.Purchases),
-        )
-
-        private val dropdownMenuItemModels = listOf(
-            DropdownMenuItemModel("Create profile", Icons.Outlined.Add),
-            DropdownMenuItemModel("Manage profiles", Icons.Outlined.Edit),
-            DropdownMenuItemModel("Learn more about profiles", Icons.Outlined.Info),
-        )
-
         @Composable
         fun TopBar() {
             Box(modifier = Modifier.fillMaxWidth()) {
@@ -114,7 +106,7 @@ interface MyStuffScreen {
         }
 
         @Composable
-        fun Tabs(tabModels: List<TabModel>, selectedTabIndex: Int, onItemClick: (Int) -> Unit) {
+        fun Tabs(tabModels: List<TabModel<MyStuffRouting>>, selectedTabIndex: Int, onItemClick: (Int) -> Unit) {
             TabRow(
                 selectedTabIndex = selectedTabIndex,
                 backgroundColor = Color.Transparent,
@@ -151,19 +143,19 @@ interface MyStuffScreen {
                     Router<MyStuffRouting>("my stuff router", MyStuffRouting.Downloads) { backstack ->
                         val currentRoute = backstack.last()
 
-                        val selectedTabIndex = tabModels.indexOfFirst { it.route == currentRoute }
+                        val selectedTabIndex = myStuffTabModels.indexOfFirst { it.route == currentRoute }
 
                         Tabs(
-                            tabModels = tabModels,
+                            tabModels = myStuffTabModels,
                             selectedTabIndex = selectedTabIndex,
-                            onItemClick = { backstack.push(tabModels[it].route) }
+                            onItemClick = { backstack.push(myStuffTabModels[it].route) }
                         )
 
                         Box(
                             modifier = Modifier.fillMaxSize(),
                         ) {
                             when (currentRoute) {
-                                MyStuffRouting.Downloads -> DownloadsPage.Content()
+                                MyStuffRouting.Downloads -> DownloadsPageScreen.Content()
                                 MyStuffRouting.Purchases -> Text("Purchases")
                                 MyStuffRouting.Watchlist -> Text("Watchlist")
                             }
@@ -174,9 +166,6 @@ interface MyStuffScreen {
         }
     }
 
-    data class TabModel(val label: String, val route: MyStuffRouting)
-
-    data class DropdownMenuItemModel(val label: String, val icon: ImageVector)
 
     sealed class MyStuffRouting {
         object Downloads : MyStuffRouting()

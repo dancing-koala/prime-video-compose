@@ -16,21 +16,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dancing_koala.primevideo.R
-import com.dancing_koala.primevideo.ui.theme.PrimeBlack
+import com.dancing_koala.primevideo.homeTabModels
 import com.dancing_koala.primevideo.ui.theme.PrimeDarkGray
 import com.github.zsoltk.compose.router.Router
 
 interface HomeScreen {
     companion object {
-
-        private val tabModels = listOf(
-            TabModel("Home", HomeRouting.HomePage),
-            TabModel("TV Shows", HomeRouting.TvShowsPage),
-            TabModel("Movies", HomeRouting.MoviesPage),
-            TabModel("Kids", HomeRouting.KidsPage),
-            TabModel("Originals", HomeRouting.OriginalsPage),
-        )
-
         private val baseTopBarHeight = 56.dp
 
         @Composable
@@ -91,12 +82,13 @@ interface HomeScreen {
                         contentDescription = ""
                     )
                 }
+
                 Router<HomeRouting>("home routing", defaultRouting = HomeRouting.HomePage) { backStack ->
                     val currentRoute = backStack.last()
 
                     Column(modifier = Modifier.fillMaxSize()) {
-                        TabRow(selectedTabIndex = tabModels.indexOfFirst { it.route == currentRoute }) {
-                            tabModels.forEach {
+                        TabRow(selectedTabIndex = homeTabModels.indexOfFirst { it.route == currentRoute }) {
+                            homeTabModels.forEach {
                                 Tab(
                                     text = { Text(text = it.label, fontSize = 10.sp) },
                                     selected = currentRoute == it.route,
@@ -106,7 +98,7 @@ interface HomeScreen {
                         }
 
                         when (currentRoute) {
-                            HomeRouting.HomePage      -> HomePage.Content(nestedScrollConnection)
+                            HomeRouting.HomePage      -> HomePageScreen.Content(nestedScrollConnection)
                             HomeRouting.KidsPage      -> Text("Kids page")
                             HomeRouting.MoviesPage    -> Text("Movies page")
                             HomeRouting.OriginalsPage -> Text("Originals page")
@@ -117,8 +109,6 @@ interface HomeScreen {
             }
         }
     }
-
-    data class TabModel(val label: String, val route: HomeRouting)
 
     sealed class HomeRouting {
         object HomePage : HomeRouting()

@@ -37,7 +37,7 @@ import com.dancing_koala.primevideo.ui.theme.PrimeBlue
 import com.dancing_koala.primevideo.ui.theme.PrimeGray
 import com.dancing_koala.primevideo.ui.theme.PrimeWhite50
 
-interface DownloadsPage {
+interface DownloadsPageScreen {
     companion object {
 
         private val itemHeight = 96.dp

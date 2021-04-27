@@ -21,7 +21,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.dancing_koala.primevideo.ui.theme.PrimeDarkBlue
 import kotlinx.coroutines.launch
 
 sealed class Notice {

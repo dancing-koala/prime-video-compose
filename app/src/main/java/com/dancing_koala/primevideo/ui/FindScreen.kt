@@ -1,10 +1,7 @@
 package com.dancing_koala.primevideo.ui
 
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowRight
@@ -13,6 +10,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -20,9 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.dancing_koala.primevideo.ui.components.GradientsBackgroundCanvas
 import com.dancing_koala.primevideo.ui.components.SimpleGridLayout
-import com.dancing_koala.primevideo.ui.theme.PrimeBlue
-import com.dancing_koala.primevideo.ui.theme.PrimeGray
-import com.dancing_koala.primevideo.ui.theme.PrimeWhite50
+import com.dancing_koala.primevideo.ui.theme.*
 
 interface FindScreen {
     companion object {
@@ -32,36 +28,39 @@ interface FindScreen {
             Text(
                 text = text,
                 fontWeight = FontWeight.Bold,
-                color = Color.White
+                color = Color.White,
+                fontSize = 18.sp
             )
         }
 
         @Composable
         fun SearchBox() {
-            Card(
-                shape = RoundedCornerShape(4.dp),
-                border = BorderStroke(1.dp, PrimeWhite50),
-                backgroundColor = MaterialTheme.colors.background,
+            val shape = Shapes.medium
+
+            Box(
+                contentAlignment = Alignment.CenterStart,
                 modifier = Modifier
-                    .height(48.dp)
                     .fillMaxWidth()
+                    .height(48.dp)
+                    .border(border = BorderStroke(1.dp, PrimeWhite50), shape = shape)
+                    .background(color = PrimeDarkGray, shape = shape)
+                    .clip(shape)
+                    .padding(horizontal = 8.dp)
+
             ) {
-                Box(
-                    contentAlignment = Alignment.CenterStart,
-                    modifier = Modifier.padding(start = 8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.Outlined.Search,
-                        contentDescription = "",
-                        tint = PrimeWhite50
-                    )
-                    Text(
-                        text = "Search by actor, title...",
-                        textAlign = TextAlign.Center,
-                        color = PrimeWhite50,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Outlined.Search,
+                    contentDescription = "",
+                    tint = PrimeWhite50,
+                    modifier = Modifier.size(32.dp)
+                )
+                Text(
+                    text = "Search by actor, title...",
+                    textAlign = TextAlign.Center,
+                    color = PrimeWhite50,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
         }
 
@@ -84,42 +83,26 @@ interface FindScreen {
 
         @Composable
         fun BrowseBySection() {
+            val maxWidthModifier = Modifier.fillMaxWidth()
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
+                modifier = maxWidthModifier
             ) {
                 FindSectionTitle("Browse by")
 
                 SimpleGridLayout(
                     itemSpacing = 8.dp,
                     itemsPerLine = 2,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = maxWidthModifier
                 ) {
-                    CategoryButton(
-                        text = "TV",
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    CategoryButton(
-                        text = "Movies",
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    CategoryButton(
-                        text = "Amazon Originals",
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    CategoryButton(
-                        text = "Kids",
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    CategoryButton(
-                        text = "Made in Europe",
-                        onClick = { /*TODO*/ },
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    listOf("TV", "Movies", "Amazon Originals", "Kids", "Made in Europe").forEach {
+                        CategoryButton(
+                            text = it,
+                            onClick = { /*TODO*/ },
+                            modifier = maxWidthModifier
+                        )
+                    }
                 }
             }
         }
